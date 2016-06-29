@@ -98,7 +98,50 @@ public class RecordingActivity extends AppCompatActivity {
             }
             // save recorded audio to an external file
             saveRecord(sampleBuffer, sampleBufferLength);
+
+            // normalizing the data
+            double[][] samples = normalizeData(sampleBuffer, sampleBufferLength);
+
+            // apply Basic smoothing window
+            applyBasicWindow(samples, sampleBufferLength);
+
             return null;
+        }
+
+        public void applyBasicWindow(double[][] samples, int sampleBufferLength){
+            for (int i=0; i<numberImpulses; i++){
+                samples[i][0] *= 0.0625;
+                samples[i][1] *= 0.125;
+                samples[i][2] *= 0.25;
+                samples[i][3] *= 0.5;
+                samples[i][4] *= 0.75;
+                samples[i][5] *= 0.875;
+                samples[i][6] *= 0.9375;
+
+                samples[i][sampleBufferLength - 7] *= 0.9375;
+                samples[i][sampleBufferLength - 6] *= 0.875;
+                samples[i][sampleBufferLength - 5] *= 0.75;
+                samples[i][sampleBufferLength - 4] *= 0.5;
+                samples[i][sampleBufferLength - 3] *= 0.25;
+                samples[i][sampleBufferLength - 2] *= 0.125;
+                samples[i][sampleBufferLength - 1] *= 0.0625;
+            }
+        }
+
+        public double[][] normalizeData(short[][] sampleBuffer, int sampleBufferLength){
+            double[][] samples = new double[numberImpulses][sampleBufferLength];
+            // normalizing time domain data
+            for (int k=0; k<numberImpulses; k++){
+                double max = 0;
+                for (int n=0; n<sampleBufferLength; n++){
+                    samples[k][n] = (double) sampleBuffer[k][n];
+                    if (samples[k][n] > max) max = samples[k][n];
+                }
+                for (int h=0; h<sampleBufferLength; h++)
+                    samples[k][h] /= max;
+            }
+
+            return samples;
         }
 
         public void saveRecord(short[][] sampleBuffer, int sampleBufferLength){
@@ -178,7 +221,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         @Override
         public void onTick(long l) {
-            timeRemaining.setText(l + "");
+            timeRemaining.setText((int)Math.ceil(l/1000) + "");
         }
 
         @Override
