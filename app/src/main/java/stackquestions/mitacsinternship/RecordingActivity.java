@@ -86,7 +86,6 @@ public class RecordingActivity extends AppCompatActivity {
                     while (samplesRead < sampleBufferLength) samplesRead +=
                             recorder.read(sampleBuffer[remainingImpulses], samplesRead, sampleBufferLength - samplesRead);
                 }
-
                 if (isCancelled()) {
                     detectBuffer = null;
                     sampleBuffer = null;
@@ -97,7 +96,6 @@ public class RecordingActivity extends AppCompatActivity {
                 recorder.release();
                 recorder = null;
             }
-
             // save recorded audio to an external file
             saveRecord(sampleBuffer, sampleBufferLength);
             return null;
