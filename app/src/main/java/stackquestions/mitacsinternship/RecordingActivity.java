@@ -97,13 +97,15 @@ public class RecordingActivity extends AppCompatActivity {
                 recorder = null;
             }
             // save recorded audio to an external file
-            saveRecord(sampleBuffer, sampleBufferLength);
+             saveRecord(sampleBuffer, sampleBufferLength);
 
             // normalizing the data
             double[][] samples = normalizeData(sampleBuffer, sampleBufferLength);
 
             // apply Basic smoothing window
             applyBasicWindow(samples, sampleBufferLength);
+
+            // perform fft on the signal
 
             return null;
         }
