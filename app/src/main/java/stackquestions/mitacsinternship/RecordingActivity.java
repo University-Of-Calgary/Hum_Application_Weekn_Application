@@ -127,6 +127,7 @@ public class RecordingActivity extends AppCompatActivity {
             double[] maxTemp = graphAveragedFrequencyDomain(tempImpBuffer, samples);
 
             // Perform Digital Signal Processing here
+            dsp();
 
             return null;
         }
