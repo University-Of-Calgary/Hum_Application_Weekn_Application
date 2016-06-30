@@ -23,15 +23,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class RecordingActivity extends AppCompatActivity {
 
     int samplingRate = 8000, numberChannels = 1, audioEncoding = AudioFormat.ENCODING_PCM_16BIT,
-    recordingTime = 5, numberImpulses = 2, threshold = 0;
+    recordingTime = 5, numberImpulses = 2, threshold = 0, samplesPerPoint = 32;
     TextView remainingImpulses, timeRemaining;
     Button startRecording, startPlayback;
     AudioRecord recorder;
     final CounterClass timer = new CounterClass(5000, 1000);
+    double REFSPL = 0.00002;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,8 +108,85 @@ public class RecordingActivity extends AppCompatActivity {
             applyBasicWindow(samples, sampleBufferLength);
 
             // perform fft on the signal
+            int error = doubleFFT(samples, sampleBufferLength);
+            if (error == -1) {sampleBuffer = null; return -1;}
+
+            // average the dataset here
+            double[] toStorage = averagedDataset(samples, sampleBufferLength);
+
+            // Averaging the values over 32 points
+            // tempBuffer stores the averaged time Domain values for all impulses
+            int width = toStorage.length / samplesPerPoint / 2;
+            double[] tempBuffer = new double[width];
+            double maxYval = graphAveragedTimeDomain(tempBuffer, toStorage);
+            System.out.println("The maximum Y value obtained from the graph is : " + maxYval);
+
+            // tempImpBuffer stores the averaged frequency Domain values for each impulse
+            double[] tempImpBuffer = new double[width];
+            // maxTemp has to be returned as an array of values (number of Impulses)
+            double[] maxTemp = graphAveragedFrequencyDomain(tempImpBuffer, samples);
+
+            // Perform Digital Signal Processing here
 
             return null;
+        }
+
+        // Perform Digital Signal Processing here
+        // Perform 1. Ratio Background Noise, 2. Percentage Worse Case
+        public void dsp(){
+
+        }
+
+        // Reduces the number of data points in the frequency domain
+        public double[] graphAveragedFrequencyDomain(double[] tempImpBuffer, double[][] samples){
+            double[] maxTemp = new double[numberImpulses];
+            for (int i=0; i<numberImpulses; i++){
+                maxTemp[i] = 0;
+                for (int k=0; k<tempImpBuffer.length; k++) {
+                    for (int n = 0; n < samplesPerPoint; n++)
+                        tempImpBuffer[k] += (samples[i][k * samplesPerPoint + n]) / REFSPL;
+                    if (maxTemp[i] < tempImpBuffer[k]) maxTemp[i] = tempImpBuffer[k];
+                }
+                ByteBuffer byteImpBuffer = ByteBuffer.allocate(tempImpBuffer.length * 8);
+                for (int k=0; k<tempImpBuffer.length; k++) byteImpBuffer.putDouble(tempImpBuffer[k]);
+            }
+            return maxTemp;
+        }
+
+        // Reduces the number of data points, the graph loads in an optimal time
+        public double graphAveragedTimeDomain(double[] tempBuffer, double[] toStorage){
+            double maxYval = 0;
+            for (int k=0; k<tempBuffer.length; k++){
+                for (int n=0; n<samplesPerPoint; n++)
+                    tempBuffer[k] += toStorage[k*samplesPerPoint + n];
+                tempBuffer[k] /= samplesPerPoint;
+                if (tempBuffer[k] > maxYval) maxYval = tempBuffer[k];
+            }
+            return maxYval;
+        }
+
+        public double[] averagedDataset(double[][] samples, int sampleBufferLength){
+            double[] toStorage = new double[sampleBufferLength];
+            for (int k=0; k<numberImpulses; k++){
+                for (int n=0; n<sampleBufferLength; n++)
+                    toStorage[n] += samples[k][n] / REFSPL;
+                for (int n=0; n<sampleBufferLength; n++)
+                    toStorage[n] /= numberImpulses;
+            }
+            return toStorage;
+        }
+
+        public int doubleFFT(double[][] samples, int sampleBufferLength){
+            double[] real = new double[sampleBufferLength], imag = new double[sampleBufferLength];
+            for (int k=0; k<sampleBufferLength; k++){
+                System.arraycopy(samples[k], 0, real, 0, sampleBufferLength);
+                for (int n=0; n<sampleBufferLength; n++) imag[n] = 0;
+                int error = FFTbase.fft(real, imag, true);
+                for (int n=0; n<sampleBufferLength; n++) samples[k][n] =
+                        Math.sqrt(real[n] * real[n] + imag[n] * imag[n]);
+                if (isCancelled()) return -1;
+            }
+            return 0;
         }
 
         public void applyBasicWindow(double[][] samples, int sampleBufferLength){
