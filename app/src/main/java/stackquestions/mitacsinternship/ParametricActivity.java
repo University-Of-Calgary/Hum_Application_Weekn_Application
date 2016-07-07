@@ -110,7 +110,7 @@ public class ParametricActivity extends AppCompatActivity {
                 // System.out.println("This is the gps switch value : " + gpsValue);
                 // System.out.println("The type of the gps switch value is : " + gpsValue.getClass().getName());
                 // SharedPreferences.Editor editor = getSharedPreferences(PREFERENCES, MODE_PRIVATE).edit();
-                SharedPreferences preferences = getSharedPreferences(PREFERENCES, MODE_WORLD_READABLE);
+                SharedPreferences preferences = getSharedPreferences(PREFERENCES, MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
 
                 /**editor.putString(timeStartKey, timeStart);
@@ -150,7 +150,7 @@ public class ParametricActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.recordingParameters:
-                Intent preferencesIntent = new Intent(ParametricActivity.this, SettingsActivity.class);
+                Intent preferencesIntent = new Intent(ParametricActivity.this, RecorderSettings.class);
                 startActivity(preferencesIntent);
                 return true;
 
