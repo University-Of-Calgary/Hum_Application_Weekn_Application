@@ -153,6 +153,11 @@ public class ParametricActivity extends AppCompatActivity {
                 Intent preferencesIntent = new Intent(ParametricActivity.this, SettingsActivity.class);
                 startActivity(preferencesIntent);
                 return true;
+
+            case R.id.findingGPS:
+                Intent gpsIntent = new Intent(ParametricActivity.this, GetGPSDataActivity.class);
+                startActivity(gpsIntent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

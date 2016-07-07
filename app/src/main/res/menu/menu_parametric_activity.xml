@@ -7,4 +7,8 @@
         android:id="@+id/recordingParameters"
         android:title="Recording Parameters"/>
 
+    <item
+        android:id="@+id/findingGPS"
+        android:title="Find GPS data"></item>
+
 </menu>
