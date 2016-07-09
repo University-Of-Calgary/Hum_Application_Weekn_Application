@@ -107,19 +107,8 @@ public class ParametricActivity extends AppCompatActivity {
                 String gpsValue = gps.isChecked() ? "yes" : "no";
                 String originalStore = storeOriginal.isChecked() ? "yes" : "no";
 
-                // System.out.println("This is the gps switch value : " + gpsValue);
-                // System.out.println("The type of the gps switch value is : " + gpsValue.getClass().getName());
-                // SharedPreferences.Editor editor = getSharedPreferences(PREFERENCES, MODE_PRIVATE).edit();
                 SharedPreferences preferences = getSharedPreferences(PREFERENCES, MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
-
-                /**editor.putString(timeStartKey, timeStart);
-                editor.putString(timeEndKey, timeEnd);
-                editor.putString(timeOftenKey, timeOften);
-                editor.putString(timeRecordingKey, timeRecording);
-                editor.putString(thresholdNoiseKey, thresholdNoise);
-                editor.putString(gpsValueKey, gpsValue);
-                editor.putString(originalStoreKey, originalStore);*/
 
                 editor.putString(timeStartKey, startTimeHash.get(timeStart).toString());
                 editor.putString(timeEndKey, endTimeHash.get(timeEnd).toString());

@@ -32,6 +32,8 @@
         </activity>
         <activity android:name=".RecorderSettings" >
         </activity>
+        <activity android:name=".RecorderActivity" >
+        </activity>
     </application>
 
 </manifest>
